@@ -18,9 +18,13 @@ class RestaurantTableViewController: UITableViewController {
     
     var restaurantTypes = ["Coffee & Tea Shop", "Cafe", "Tea House", "Austrian / Causual Drink", "French", "Bakery", "Bakery", "Chocolate", "Cafe", "American / Seafood", "American", "American", "Breakfast & Brunch", "Coffee & Tea", "Coffee & Tea", "Latin American", "Spanish", "Spanish", "Spanish", "British", "Thai"]
     
+    var restaurantIsVisited = Array(repeating: false, count: 21)
+    
+    var checkIn = "Check In"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        tableView.cellLayoutMarginsFollowReadableWidth = true
     }
 
     override func didReceiveMemoryWarning() {
@@ -41,6 +45,8 @@ class RestaurantTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cellIdentifier = "Cell"
+        
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! RestaurantTableViewCell
         
         // Configure the cell...
@@ -48,6 +54,7 @@ class RestaurantTableViewController: UITableViewController {
         cell.thumbnailImageView.image = UIImage(named: restaurantImages[indexPath.row])
         cell.typeLabel.text = restaurantTypes[indexPath.row]
         cell.locationLabel.text = restaurantLocations[indexPath.row]
+        cell.accessoryType = restaurantIsVisited[indexPath.row] ? .checkmark : .none
         
         return cell
     }
@@ -58,7 +65,16 @@ class RestaurantTableViewController: UITableViewController {
         
         // Add actions to the menu
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        optionMenu.addAction(cancelAction)
         
+        if let popoverController = optionMenu.popoverPresentationController {
+            if let cell = tableView.cellForRow(at: indexPath) {
+                popoverController.sourceView = cell
+                popoverController.sourceRect = cell.bounds
+            }
+        }
+        
+        // Add call action
         let callActionHandler = { (action: UIAlertAction!) -> Void in
             let alertMessage = UIAlertController(title: "Service Unavailable", message: "Sorry, this call feature is not available yet. Please retry later.", preferredStyle: .alert)
             alertMessage.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
@@ -66,23 +82,36 @@ class RestaurantTableViewController: UITableViewController {
         }
         
         let callAction = UIAlertAction(title: "Call " + "123-000-\(indexPath.row)", style: .default , handler: callActionHandler)
+        optionMenu.addAction(callAction)
         
-        // Check in action
+        // Check in action and change text
         
-        let checkInAction = UIAlertAction(title: "Check in", style: .default, handler: { (action: UIAlertAction!)  -> Void in
+        if checkIn == "Check in" {
+            checkIn = "Check out"
+        }
+        else {
+            checkIn = "Check in"
+        }
+        
+        let checkInAction = UIAlertAction(title: checkIn, style: .default, handler: { (action: UIAlertAction!)  -> Void in
             let cell = tableView.cellForRow(at: indexPath)
-            cell?.accessoryType = .checkmark
+            
+            if cell?.accessoryType == .checkmark {
+                cell?.accessoryType = .none
+                self.restaurantIsVisited[indexPath.row] = false
+            } else {
+                cell?.accessoryType = .checkmark
+                self.restaurantIsVisited[indexPath.row] = true
+            }
+            
         })
         
-        optionMenu.addAction(cancelAction)
-        optionMenu.addAction(callAction)
         optionMenu.addAction(checkInAction)
-        
         
         // Display the menu
         present(optionMenu, animated: true, completion: nil)
  
-        // Deselect thr row
+        // Deselect the row, do not show the selected rom
         tableView.deselectRow(at: indexPath, animated: false)
         
     }
