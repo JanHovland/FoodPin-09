@@ -21,6 +21,7 @@ class RestaurantTableViewController: UITableViewController {
     var restaurantIsVisited = Array(repeating: false, count: 21)
     
     var checkIn = "Check In"
+    var temp = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -93,10 +94,12 @@ class RestaurantTableViewController: UITableViewController {
             checkIn = "Check in"
         }
         
+        // Set accessoryType and update array
+        
         let checkInAction = UIAlertAction(title: checkIn, style: .default, handler: { (action: UIAlertAction!)  -> Void in
             let cell = tableView.cellForRow(at: indexPath)
             
-            if cell?.accessoryType == .checkmark {
+            if self.restaurantIsVisited[indexPath.row] == true {
                 cell?.accessoryType = .none
                 self.restaurantIsVisited[indexPath.row] = false
             } else {
