@@ -47,7 +47,6 @@ class RestaurantTableViewController: UITableViewController {
         
         let cellIdentifier = "Cell"
         
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! RestaurantTableViewCell
         
         // Configure the cell...
@@ -57,6 +56,9 @@ class RestaurantTableViewController: UITableViewController {
         cell.locationLabel.text = restaurantLocations[indexPath.row]
         cell.accessoryType = restaurantIsVisited[indexPath.row] ? .checkmark : .none
         
+        // Use the isHidden property to control the appearance of the heart icon
+        cell.heartImageView.isHidden = restaurantIsVisited[indexPath.row] ? false : true
+
         return cell
     }
     
@@ -96,17 +98,16 @@ class RestaurantTableViewController: UITableViewController {
         
         // Set accessoryType and update array
         
-        let checkInAction = UIAlertAction(title: checkIn, style: .default, handler: { (action: UIAlertAction!)  -> Void in
-            let cell = tableView.cellForRow(at: indexPath)
+        let checkActionTitle = (restaurantIsVisited[indexPath.row]) ? "Undo Check in" : "Check in"
+        
+        let checkInAction = UIAlertAction(title: checkActionTitle, style: .default, handler: { (action: UIAlertAction!)  -> Void in
+            let cell = tableView.cellForRow(at: indexPath) as! RestaurantTableViewCell
             
-            if self.restaurantIsVisited[indexPath.row] == true {
-                cell?.accessoryType = .none
-                self.restaurantIsVisited[indexPath.row] = false
-            } else {
-                cell?.accessoryType = .checkmark
-                self.restaurantIsVisited[indexPath.row] = true
-            }
+            self.restaurantIsVisited[indexPath.row] = (self.restaurantIsVisited[indexPath.row]) ? false : true
+            // Use the isHidden property to control the appearance of the heart icon
             
+            cell.heartImageView.isHidden = self.restaurantIsVisited[indexPath.row] ? false : true
+
         })
         
         optionMenu.addAction(checkInAction)
